@@ -7,13 +7,10 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    
-
-     "module": "ESNext",
+    "module": "esnext",
     "moduleResolution": "bundler",
     "target": "esnext",
-   
-    "ignoreDeprecations": "6.0"
+    "types": ["node"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
