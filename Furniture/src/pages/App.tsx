@@ -1,45 +1,29 @@
-// import heroImg from './assets/hero.png'
-import { useState } from "react";
-import { Link } from "react-router";
-
-import { Button } from "../components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-
-interface PropStudent {
-  name: string;
-  age: string;
-}
-function Student({ name, age }: PropStudent) {
-  return (
-    <div>
-      <p>Name :{name}</p>
-      <p> Age :{age}</p>
-    </div>
-  );
-}
-function Footer({ children }: { children: React.ReactNode }) {
-  return <footer>{children}</footer>;
-}
+import { Button } from "@/components/ui/button";
+import { signUp, signIn } from "@/lib/auth-client";
 function App() {
-  const [count, setCount] = useState(0);
+  const handleSignUp = async () => {
+    const name = "John Doe";
+    const email = "johndoe@gmail.com";
+    const password = "Password123";
+
+    const { data, error } = await signUp.email({ name, email, password });
+    console.log("data", data);
+    console.log("error", error);
+  };
+  const handleSignIn = async () => {
+    const email = "johndoe@gmail.com";
+    const password = "Password123";
+
+    const { data, error } = await signIn.email({ email, password });
+    console.log("data", data);
+    console.log("error", error);
+  };
 
   return (
     <>
-      <section id="center">
-        <h1>This is React</h1>
-        <Student name="Su Su" age="22" />
-        <img src="favicon.svg" alt="icons logo" />
-        <Button onClick={() => setCount((prev) => prev + 1)}>
-          Count - {count}
-          <Spinner />
-        </Button>
-        <Button>
-          <Link to="/Login">Login</Link>
-        </Button>
-      </section>
-      <Footer>
-        <p className="bg-red-500">This is footer</p>
-      </Footer>
+      <h1>Welcome to fullstack development!</h1>
+      <Button onClick={handleSignUp}> Sign Up </Button>
+      <Button onClick={handleSignIn}> Sing In</Button>
     </>
   );
 }
