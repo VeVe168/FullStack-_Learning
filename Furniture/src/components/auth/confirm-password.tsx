@@ -144,7 +144,7 @@ export function PasswordForm({
                       )}
                     </Field>
                   )}
-                />{" "}
+                />
               </Field>
             </Field>
           </Field>
