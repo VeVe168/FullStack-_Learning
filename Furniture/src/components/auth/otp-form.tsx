@@ -1,6 +1,7 @@
-import { Link } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import React from "react";
+import React, { useEffect } from "react";
+import { useFormStatus } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,12 +22,32 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { emailOtp } from "@/lib/auth-client";
 
 export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const searchParams = useSearchParams();
+  const { pending } = useFormStatus();
+  const [error, setError] = React.useState<string | null>(null);
   const [value, setValue] = React.useState("");
+  const navigate = useNavigate();
+  const email = searchParams[0].get("email") || "";
+  useEffect(() => {
+    if (!email) {
+      navigate("/Register");
+    }
+  }, [email, navigate]);
 
-  function onSubmit() {
-    console.log(value);
+  async function onSubmit(e: React.SubmitEvent) {
+    e.preventDefault();
+    setError(null);
+    try {
+      await emailOtp.verifyEmail({ email, otp: value });
+      navigate("/Login");
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error ? error.message : "Invalid verification code",
+      );
+    }
   }
   return (
     <Card {...props}>
@@ -63,9 +84,10 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
               </FieldDescription>
             </Field>
 
-            <Button type="submit" form="otp-form">
-              Verify
+            <Button type="submit" form="otp-form" disabled={pending}>
+              {pending ? "Verifying..." : "Verify"}
             </Button>
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             <FieldDescription className="text-center">
               Didn&apos;t receive the code? <Link to="#">Resend</Link>
             </FieldDescription>

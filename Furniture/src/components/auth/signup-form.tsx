@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
@@ -23,7 +23,7 @@ import {
 } from "../ui/input-group";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { signIn } from "@/lib/auth-client";
+import { signIn, signUp, emailOtp } from "@/lib/auth-client";
 const formSchema = z.object({
   name: z
     .string()
@@ -49,6 +49,7 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,8 +65,30 @@ export function SignupForm({
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data);
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    try {
+      await signUp.email({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      });
+
+      const otpResult = await emailOtp.sendVerificationOtp({
+        email: data.email,
+        type: "email-verification",
+      });
+      if (otpResult.error) {
+        setError(otpResult.error.message || "Failed to create account");
+        return;
+      }
+      navigate(`/Register/VerifyOtp?email=${data.email}`);
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error ? error.message : "Failed to create account",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
   async function handleGoogleSignIn() {
     setError(null);
